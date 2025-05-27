@@ -139,6 +139,11 @@ double& Matrix::operator()(const unsigned &rowNo, const unsigned &colNo) {
     return this->m_matrix[rowNo][colNo];
 }
 
+// Const qualified overload
+const double& Matrix::operator()(const unsigned &rowNo, const unsigned &colNo) const {
+    return this->m_matrix[rowNo][colNo];
+}
+
 
 // Return row size
 unsigned Matrix::getRows() const {

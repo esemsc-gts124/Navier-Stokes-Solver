@@ -42,6 +42,7 @@ class Matrix {
 
         // Aestheic Methods
         double& operator()(const unsigned &, const unsigned &);
+        const double& operator()(const unsigned &, const unsigned &) const;
         void print() const;
         unsigned getRows() const;
         unsigned getCols() const;
