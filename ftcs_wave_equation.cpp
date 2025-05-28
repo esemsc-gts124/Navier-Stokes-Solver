@@ -7,6 +7,7 @@
 #include <chrono>
 
 /* TO DO:
+    TEST OUT SWAPPING OPERATIONS INSTEAD OF COPY IN NS_SOLVER!! TIME IT!!
     add consts to function parameters where possible
     make a CMAKE 
     consider a parameters.txt file for physical params
@@ -208,19 +209,40 @@ inline void applyBoundaryConditions(FlowField2D& ff, unsigned Nx, unsigned Ny)
     //     ff.u(i, 0)    = 0.0;
     //     ff.v(i, 0)    = 0.0;
     // }
-    /* left & right walls ------------------------------------------------ */
-    for (unsigned j = 0; j < Ny; ++j) {
-        ff.u(0,   j) = ff.v(0,   j) = 0.0;
-        ff.u(Nx-1,j) = ff.v(Nx-1,j) = 0.0;
+    // /* left & right walls ------------------------------------------------ */
+    // for (unsigned j = 0; j < Ny; ++j) {
+    //     ff.u(0,   j) = ff.v(0,   j) = 0.0;
+    //     ff.u(Nx-1,j) = ff.v(Nx-1,j) = 0.0;
+    // }
+
+    // /* bottom wall ------------------------------------------------------- */
+    // for (unsigned i = 0; i < Nx; ++i) {
+    //     ff.u(i, 0) = ff.v(i, 0) = 0.0;
+    // }
+
+    // /* lid (must come last) --------------------------------------------- */
+    // for (unsigned i = 0; i < Nx; ++i) {
+    //     ff.u(i, Ny-1) = 1.0;
+    //     ff.v(i, Ny-1) = 0.0;
+    // }
+
+    // Left and right walls
+    for (int j = 0; j < Ny; ++j) {
+        ff.u(0, j) = 0.0;
+        ff.v(0, j) = 0.0;
+
+        ff.u(Nx-1, j) = 0.0;
+        ff.v(Nx-1, j) = 0.0;
     }
 
-    /* bottom wall ------------------------------------------------------- */
-    for (unsigned i = 0; i < Nx; ++i) {
-        ff.u(i, 0) = ff.v(i, 0) = 0.0;
+    // Bottom wall
+    for (int i = 0; i < Nx; ++i) {
+        ff.u(i, 0) = 0.0;
+        ff.v(i, 0) = 0.0;
     }
 
-    /* lid (must come last) --------------------------------------------- */
-    for (unsigned i = 0; i < Nx; ++i) {
+    // Lid (must be the last to be set or else we risk overwriting the corner values)
+    for (int i = 0; i < Nx; ++i) {
         ff.u(i, Ny-1) = 1.0;
         ff.v(i, Ny-1) = 0.0;
     }
