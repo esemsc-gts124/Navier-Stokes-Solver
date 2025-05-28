@@ -32,7 +32,7 @@ class Matrix {
         Matrix operator-(Matrix &);
         Matrix operator*(Matrix &);
         Matrix transpose();
-        double Norm();
+        double Norm() const;
 
         // Scalar Operations
         Matrix operator+(double);

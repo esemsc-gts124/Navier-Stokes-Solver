@@ -36,7 +36,7 @@ Matrix Matrix::operator+(Matrix &B) {
     Matrix sum(m_colSize, m_rowSize, 0.0); // ------- SWITCH AROUND ROW AND COL ARGS HERE!!
     unsigned i, j;
     for (i = 0; i < m_rowSize; i++) {
-        for (j = 0; j < m_rowSize; j++) {
+        for (j = 0; j < m_colSize; j++) {
             sum(i,j) = this->m_matrix[i][j] + B(i,j);
         }
     }
@@ -171,16 +171,16 @@ Matrix Matrix::transpose() {
 
 
 // Frobenius norm of a matrix
-double Matrix::Norm() {
-    double sum = 0;
+double Matrix::Norm() const {
+    double sum = 0.0;
     double norm;
     unsigned i, j;
-    for (i = 0; i < m_colSize; i++) {
-        for (j = 0; j < m_rowSize; j++) {
+    for (i = 0; i < m_rowSize; ++i) {
+        for (j = 0; j < m_colSize; ++j) {
             sum += this->m_matrix[i][j] * m_matrix[i][j];
         }
     }
-    norm = sqrt(sum);
+    norm = std::sqrt(sum);
     return norm;
 }
 
