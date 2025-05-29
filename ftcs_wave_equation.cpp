@@ -7,7 +7,6 @@
 #include <chrono>
 
 /* TO DO:
-    TEST OUT SWAPPING OPERATIONS INSTEAD OF COPY IN NS_SOLVER!! TIME IT!!
     add consts to function parameters where possible
     make a CMAKE 
     consider a parameters.txt file for physical params
@@ -38,7 +37,6 @@ struct FlowField2D
 //     INTERMEDIATE VELOCITY 
 // -----------------------------------------------------------------------------------------
 
-// Variant C: update existing velocity struct in place and std::swap with our updated struct - WINNER WINNER CHICKEN DINNER
 void calculate_intermediate_velocity(double nu, double dt, double dx, double dy, FlowField2D& ff, Matrix& u_initial, Matrix& v_initial)
 {
     std::swap(ff.u, u_initial);
@@ -90,7 +88,6 @@ void calculate_intermediate_velocity(double nu, double dt, double dx, double dy,
 //     RIGHT HAND SIDE POISSON SOLVER
 // -----------------------------------------------------------------------------------------
 
-// Variant B: use our updated struct
 Matrix calculate_ppm_RHS(double rho, double dt, double dx, double dy, const FlowField2D& ff)
 {
     const Matrix& u = ff.u;
@@ -115,7 +112,6 @@ Matrix calculate_ppm_RHS(double rho, double dt, double dx, double dy, const Flow
 //     POISSON EQUATION SOLVER 
 // -----------------------------------------------------------------------------------------
 
-// Variant B: use our updated FF2D struct
 void pressure_poisson_jacobi(double dx, double dy, Matrix& RHS, FlowField2D& ff, double rtol=1.e-5, bool logs=false)
 {
     Matrix& p = ff.p;
@@ -162,8 +158,6 @@ void pressure_poisson_jacobi(double dx, double dy, Matrix& RHS, FlowField2D& ff,
 // -----------------------------------------------------------------------------------------
 //     VELOCITY PROJECTION 
 // -----------------------------------------------------------------------------------------
-
-// Variant C: update an existing struct in place with our improved struct
 void project_velocity(double rho, double dt, double dx, double dy, FlowField2D& ff)
 {
     Matrix& u = ff.u;
@@ -186,46 +180,9 @@ void project_velocity(double rho, double dt, double dx, double dy, FlowField2D& 
 // -----------------------------------------------------------------------------------------
 //     REAPPLY BOUNDARY CONDITIONS
 // -----------------------------------------------------------------------------------------
+
 inline void applyBoundaryConditions(FlowField2D& ff, unsigned Nx, unsigned Ny)
 {
-    // for (unsigned j = 0; j < Ny; ++j)
-    // {
-    //     /* left wall */
-    //     ff.u(0,   j)  = 0.0;
-    //     ff.v(0,   j)  = 0.0;
-
-    //     /* right wall */
-    //     ff.u(Nx-1,j)  = 0.0;
-    //     ff.v(Nx-1,j)  = 0.0;
-    // }
-
-    // for (unsigned i = 0; i < Nx; ++i)
-    // {
-    //     /* lid: u = 1, v = 0 */
-    //     ff.u(i, Ny-1) = 1.0;
-    //     ff.v(i, Ny-1) = 0.0;
-
-    //     /* bottom wall */
-    //     ff.u(i, 0)    = 0.0;
-    //     ff.v(i, 0)    = 0.0;
-    // }
-    // /* left & right walls ------------------------------------------------ */
-    // for (unsigned j = 0; j < Ny; ++j) {
-    //     ff.u(0,   j) = ff.v(0,   j) = 0.0;
-    //     ff.u(Nx-1,j) = ff.v(Nx-1,j) = 0.0;
-    // }
-
-    // /* bottom wall ------------------------------------------------------- */
-    // for (unsigned i = 0; i < Nx; ++i) {
-    //     ff.u(i, 0) = ff.v(i, 0) = 0.0;
-    // }
-
-    // /* lid (must come last) --------------------------------------------- */
-    // for (unsigned i = 0; i < Nx; ++i) {
-    //     ff.u(i, Ny-1) = 1.0;
-    //     ff.v(i, Ny-1) = 0.0;
-    // }
-
     // Left and right walls
     for (int j = 0; j < Ny; ++j) {
         ff.u(0, j) = 0.0;
@@ -253,41 +210,6 @@ inline void applyBoundaryConditions(FlowField2D& ff, unsigned Nx, unsigned Ny)
 // -----------------------------------------------------------------------------------------
 //     NAVIER STOKES SOLVER
 // -----------------------------------------------------------------------------------------
-
-// void solve_NavierStokes(FlowField2D& ff, double rho, double nu, double dt, double t_end, double dx, double dy, double rtol=1.e-5, bool logs=false)
-// {
-//     Matrix u_initial(ff.u);
-//     Matrix v_initial(ff.v);
-
-//     Matrix p_RHS;
-//     double tolu;
-//     double tolv;
-    
-//     double t = 0.0;
-
-//     while (t < t_end) {
-//         t += dt;
-//         if (logs) std::cout << "Time =  " << t << std::endl;
-
-//         calculate_intermediate_velocity(nu, dt, dx, dy, ff, u_initial, v_initial);
-//         p_RHS = calculate_ppm_RHS(rho, dt, dx, dy, ff);
-//         pressure_poisson_jacobi(dx, dy, p_RHS, ff, rtol, logs);
-//         project_velocity(rho, dt, dx, dy, ff);
-
-//         if (logs) {
-//             std::cout << "Norm(u): " << ff.u.Norm() << std::setprecision(8) << "    Norm(v): " << ff.v.Norm() << std::setprecision(8) << std::endl;
-//             // std::cout << "Courant number: " << std::max(sqrt)
-//         }
-
-//         tolu = (ff.u - u_initial).Norm() / std::max(1.0e-10, ff.u.Norm());
-//         tolv = (ff.v - v_initial).Norm() / std::max(1.0e-10, ff.v.Norm());
-
-//         if (tolu < rtol && tolv < rtol) break;
-
-//         std::swap(u_initial, ff.u);
-//         std::swap(v_initial, ff.v);
-//     }
-// } 
 
 void solve_NavierStokes(FlowField2D& ff, double rho, double nu, double dt, double t_end, double dx, double dy, double Nx, double Ny, double rtol=1.e-5, bool logs=false)
 {
@@ -319,9 +241,6 @@ void solve_NavierStokes(FlowField2D& ff, double rho, double nu, double dt, doubl
         tolv = (ff.v - v_initial).Norm() / std::max(1.0e-10, ff.v.Norm());
 
         if (tolu < rtol && tolv < rtol) break;
-
-        // std::swap(u_initial, ff.u);
-        // std::swap(v_initial, ff.v);
 
         u_initial = ff.u;
         v_initial = ff.v;
